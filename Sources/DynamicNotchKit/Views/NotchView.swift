@@ -97,7 +97,11 @@ struct NotchView<Expanded, CompactLeading, CompactTrailing>: View where Expanded
         .padding(.horizontal, topCornerRadius)
         .fixedSize()
         .frame(minWidth: minWidth, minHeight: dynamicNotch.notchSize.height)
-        .onHover(perform: dynamicNotch.updateHoverState)
+        .background {
+            HoverTrackingView(notchState: dynamicNotch.state) { hovering, source in
+                dynamicNotch.updateHoverState(hovering, source: source)
+            }
+        }
     }
 
     func compactContent() -> some View {

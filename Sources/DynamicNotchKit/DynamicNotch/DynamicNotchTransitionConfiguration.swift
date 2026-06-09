@@ -22,6 +22,9 @@ import SwiftUI
 /// )
 /// ```
 public struct DynamicNotchTransitionConfiguration: Sendable {
+    /// Time to wait for the SwiftUI transition to settle before follow-up work.
+    public static let settlingDuration: Duration = .seconds(0.4)
+
     /// Animation used when the notch appears (hidden → expanded or hidden → compact).
     /// When `nil`, falls back to the style's default opening animation.
     public var openingAnimation: Animation?

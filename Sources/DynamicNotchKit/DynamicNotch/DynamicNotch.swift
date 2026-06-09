@@ -153,17 +153,30 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
     }
 
     /// Updates the hover state of the DynamicNotch, and processes necessary hover behavior.
-    /// - Parameter hovering: a boolean indicating whether the mouse is hovering over the notch.
-    func updateHoverState(_ hovering: Bool) {
-        // Ensure that we only update when the state changes
-        guard state != .hidden, hovering != isHovering else { return }
+    /// - Parameters:
+    ///   - hovering: A boolean indicating whether the mouse is hovering over the notch.
+    ///   - source: The source that reported this hover update.
+    /// - Returns: Whether the hover update was accepted.
+    @discardableResult
+    func updateHoverState(_ hovering: Bool, source: DynamicNotchHoverUpdateOrigin = .trackingArea) -> Bool {
+        // Hidden panels cannot be hovered, but a false update can clear stale
+        // hover state during compact/expanded transitions.
+        if state == .hidden {
+            guard !hovering, source == .trackingArea else {
+                return false
+            }
+        }
+
+        guard hovering != isHovering else { return true }
 
         isHovering = hovering
 
-        if hoverBehavior.contains(.hapticFeedback) {
+        if hovering, hoverBehavior.contains(.hapticFeedback) {
             let performer = NSHapticFeedbackManager.defaultPerformer
             performer.perform(.alignment, performanceTime: .default)
         }
+
+        return true
     }
 }
 
@@ -211,9 +224,7 @@ extension DynamicNotch {
             }
         }
 
-        // This is the time it takes for the animation to complete
-        // See DynamicNotchStyle's animations
-        try? await Task.sleep(for: .seconds(0.4))
+        try? await Task.sleep(for: DynamicNotchTransitionConfiguration.settlingDuration)
     }
 
     public func compact(on screen: NSScreen = NSScreen.screens[0]) async {
@@ -267,9 +278,7 @@ extension DynamicNotch {
             }
         }
 
-        // This is the time it takes for the animation to complete
-        // See DynamicNotchStyle's animations
-        try? await Task.sleep(for: .seconds(0.4))
+        try? await Task.sleep(for: DynamicNotchTransitionConfiguration.settlingDuration)
     }
 
     public func hide() async {

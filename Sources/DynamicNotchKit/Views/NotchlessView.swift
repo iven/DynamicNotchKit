@@ -40,7 +40,9 @@ struct NotchlessView<Expanded, CompactLeading, CompactTrailing>: View where Expa
                 windowHeight = newHeight
             }
             .offset(y: dynamicNotch.state == .expanded ? dynamicNotch.notchSize.height : -windowHeight)
-            .onHover(perform: dynamicNotch.updateHoverState)
+            .onHover { hovering in
+                _ = dynamicNotch.updateHoverState(hovering)
+            }
     }
 
     private func notchContent() -> some View {

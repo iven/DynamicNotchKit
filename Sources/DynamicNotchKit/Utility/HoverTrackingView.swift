@@ -157,7 +157,9 @@ struct HoverTrackingView: NSViewRepresentable {
                 return false
             }
 
-            return window.frame.minX ... window.frame.maxX ~= screenPoint.x
+            let windowPoint = window.convertPoint(fromScreen: screenPoint)
+            let viewPoint = convert(windowPoint, from: nil)
+            return bounds.minX ... bounds.maxX ~= viewPoint.x
                 && screenPoint.y == screen.frame.maxY
         }
     }
